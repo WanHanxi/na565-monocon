@@ -6,3 +6,6 @@ checkpoint/
 *.pth
 dataset/debug_tools.py
 debugger/
+dataset/testing
+dataset/training
+*log*

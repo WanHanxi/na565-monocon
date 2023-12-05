@@ -18,6 +18,7 @@ from solver import CyclicScheduler
 from utils.visualizer import Visualizer
 from utils.decorators import decorator_timer
 from utils.engine_utils import progress_to_string_bar, move_data_device, reduce_loss_dict, tprint
+from utils.kitti_convert_utils import kitti_3d_to_file
 
 
 class MonoconEngine(BaseEngine):
@@ -61,6 +62,8 @@ class MonoconEngine(BaseEngine):
             split=self.cfg.DATA.TRAIN_SPLIT if is_train else self.cfg.DATA.TEST_SPLIT,
             max_objs=self.cfg.MODEL.HEAD.MAX_OBJS,
             filter_configs={k.lower(): v for k, v in dict(self.cfg.DATA.FILTER).items()})
+        
+        print("len", len(dataset))
         
         loader = DataLoader(
             dataset,
@@ -146,6 +149,37 @@ class MonoconEngine(BaseEngine):
             self.model.train()
             tprint("Model is converted to train mode.")
         return eval_dict
+    
+    
+
+    @torch.no_grad()
+    def test(self) -> Dict[str, float]:
+        
+        cvt_flag = False
+        if self.model.training:
+            self.model.eval()
+            cvt_flag = True
+            tprint("Model is converted to eval mode.")
+            
+        eval_container = {
+            'img_bbox': [],
+            'img_bbox2d': []}
+        
+        for test_data in tqdm(self.test_loader, desc="Collecting Results..."):
+            test_data = move_data_device(test_data, self.current_device)
+            eval_results = self.model.batch_eval(test_data)
+
+            # save eval results
+            kitti_3d_to_file(eval_results, test_data["img_metas"], "./dataset/test_result", False)
+            
+            for field in ['img_bbox', 'img_bbox2d']:
+                eval_container[field].extend(eval_results[field])
+        
+        
+        if cvt_flag:
+            self.model.train()
+            tprint("Model is converted to train mode.")
+        return
 
     
     @torch.no_grad()
@@ -173,6 +207,8 @@ class MonoconEngine(BaseEngine):
             
         if scale_hw is not None:
             tprint(f"Visualization will be progressed using scale factor {scale_hw}.")
+
+        self.test_dataset, self.test_loader = self.build_loader(is_train=False)
         visualizer = Visualizer(self.test_dataset, vis_format=vis_container, scale_hw=scale_hw)
         draw_item_to_func = {
             '2d': 'plot_bboxes_2d',

@@ -10,13 +10,13 @@ _C.OUTPUT_DIR = "exps"                           # Output Directory
 _C.SEED = -1                                     # -1: Random Seed Selection
 _C.GPU_ID = 0                                    # Index of GPU to use
 
-_C.USE_BENCHMARK = True                          # Value of 'torch.backends.cudnn.benchmark' and 'torch.backends.cudnn.enabled'
+_C.USE_BENCHMARK = False                          # Value of 'torch.backends.cudnn.benchmark' and 'torch.backends.cudnn.enabled'
 
 
 # Data
 _C.DATA = CN()
-_C.DATA.ROOT = 'PATH_TO_DATASET_KITTI_FORMAT'                  # Dataset directory
-_C.DATA.BATCH_SIZE = 8
+_C.DATA.ROOT = '/workspace/565/dataset'                  # Dataset directory
+_C.DATA.BATCH_SIZE = 5
 _C.DATA.NUM_WORKERS = 4
 _C.DATA.TRAIN_SPLIT = 'train'
 _C.DATA.TEST_SPLIT = 'val'
@@ -63,3 +63,8 @@ _C.PERIOD = CN()
 _C.PERIOD.EVAL_PERIOD = 10                      # In Epochs / Set -1 if you don't want validation
 _C.PERIOD.LOG_PERIOD = 50                       # In Steps
 
+
+# from contextlib import redirect_stdout
+
+# with open('test.yaml', 'w') as f:
+#     with redirect_stdout(f): print(_C.dump())
