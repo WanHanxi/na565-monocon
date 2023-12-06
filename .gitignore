@@ -10,3 +10,4 @@ dataset/testing
 dataset/training
 *log*
 exps/checkpoints
+.idea

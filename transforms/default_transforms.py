@@ -118,6 +118,100 @@ class PhotometricDistortion(BaseTransform):
             out_img = cv2.cvtColor(img, code)
             return out_img
         return convert_color
+
+
+class AddFog(BaseTransform):
+    # refer to https://github.com/UjjwalSaxena/Automold--Road-Augmentation-Library
+    def __init__(self,):
+
+        super().__init__(True, False, False, False)
+
+        # self.brightness_delta = brightness_delta
+        # self.contrast_lower, self.contrast_upper = contrast_range
+        # self.saturation_lower, self.saturation_upper = saturation_range
+        # self.hue_delta = hue_delta
+
+    def is_list(self, x):
+        return type(x) is list
+    def add_blur(self, image, x, y, hw, fog_coeff):
+        overlay = image.copy()
+        output = image.copy()
+        alpha = 0.08 * fog_coeff
+        rad = hw // 2
+        point = (x + hw // 2, y + hw // 2)
+        cv2.circle(overlay, point, int(rad), (255, 255, 255), -1)
+        cv2.addWeighted(overlay, alpha, output, 1 - alpha, 0, output)
+        return output
+
+    def generate_random_blur_coordinates(self, imshape, hw):
+        blur_points = []
+        midx = imshape[1] // 2 - 2 * hw
+        midy = imshape[0] // 2 - hw
+        index = 1
+        while (midx > -hw or midy > -hw):
+            for i in range(hw // 10 * index):
+                x = np.random.randint(midx, imshape[1] - midx - hw)
+                y = np.random.randint(midy, imshape[0] - midy - hw)
+                blur_points.append((x, y))
+            midx -= 3 * hw * imshape[1] // sum(imshape)
+            midy -= 3 * hw * imshape[0] // sum(imshape)
+            index += 1
+        return blur_points
+
+    def add_fog(self, image, fog_coeff=-1):
+        # verify_image(image)
+
+        if (fog_coeff != -1):
+            if (fog_coeff < 0.0 or fog_coeff > 1.0):
+                raise Exception(err_fog_coeff)
+        if (self.is_list(image)):
+            image_RGB = []
+            image_list = image
+            imshape = image[0].shape
+
+            for img in image_list:
+                if fog_coeff == -1:
+                    fog_coeff_t = random.uniform(0.3, 1)
+                else:
+                    fog_coeff_t = fog_coeff
+                hw = int(imshape[1] // 3 * fog_coeff_t)
+                haze_list = self.generate_random_blur_coordinates(imshape, hw)
+                for haze_points in haze_list:
+                    img = self.add_blur(img, haze_points[0], haze_points[1], hw,
+                                   fog_coeff_t)  ## adding all shadow polygons on empty mask, single 255 denotes only red channel
+                img = cv2.blur(img, (hw // 10, hw // 10))
+                image_RGB.append(img)
+        else:
+            imshape = image.shape
+            if fog_coeff == -1:
+                fog_coeff_t = random.uniform(0.3, 1)
+            else:
+                fog_coeff_t = fog_coeff
+            hw = int(imshape[1] // 3 * fog_coeff_t)
+            haze_list = self.generate_random_blur_coordinates(imshape, hw)
+            for haze_points in haze_list:
+                image = self.add_blur(image, haze_points[0], haze_points[1], hw, fog_coeff_t)
+            ker = hw // 10 if hw // 10 > 1 else 1
+            image = cv2.blur(image, (ker, ker))
+            image_RGB = image
+
+        return image_RGB
+
+    def __call__(self, data_dict: Dict[str, Any]) -> Dict[str, Any]:
+        if random.randint(2):
+            img = data_dict['img'].astype(np.float32)
+            img = self.add_fog(img, fog_coeff = 0.3 + np.random.uniform()*0.4)
+            data_dict['img'] = img
+        return data_dict
+
+    def _convert_color_factory(self, src: str, dst: str):
+        code = getattr(cv2, f'COLOR_{src.upper()}2{dst.upper()}')
+
+        def convert_color(img):
+            out_img = cv2.cvtColor(img, code)
+            return out_img
+
+        return convert_color
     
     
 class RandomShift(BaseTransform):

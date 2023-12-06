@@ -20,6 +20,7 @@ from utils.decorators import decorator_timer
 from utils.engine_utils import progress_to_string_bar, move_data_device, reduce_loss_dict, tprint
 from utils.kitti_convert_utils import kitti_3d_to_file
 
+# from matplotlib import pyplot as plt
 
 class MonoconEngine(BaseEngine):
     def __init__(self, cfg: CfgNode, **kwargs):    
@@ -62,8 +63,6 @@ class MonoconEngine(BaseEngine):
             split=self.cfg.DATA.TRAIN_SPLIT if is_train else self.cfg.DATA.TEST_SPLIT,
             max_objs=self.cfg.MODEL.HEAD.MAX_OBJS,
             filter_configs={k.lower(): v for k, v in dict(self.cfg.DATA.FILTER).items()})
-        
-        print("len", len(dataset))
         
         loader = DataLoader(
             dataset,
@@ -150,7 +149,14 @@ class MonoconEngine(BaseEngine):
             tprint("Model is converted to train mode.")
         return eval_dict
     
-    
+    # def visualizee(self, image):
+    #     plt.close()
+    #     plt.figure()
+    #     plt.axis('off')
+    #     image = image.transpose(1, 2, 0)
+    #     plt.imshow(image)
+    #     plt.savefig('test.png')
+    #     input("Press Enter to continue...")
 
     @torch.no_grad()
     def test(self) -> Dict[str, float]:
@@ -166,6 +172,10 @@ class MonoconEngine(BaseEngine):
             'img_bbox2d': []}
         
         for test_data in tqdm(self.test_loader, desc="Collecting Results..."):
+
+            # img = test_data["img"][0].cpu().numpy()
+            # self.visualizee(img)
+
             test_data = move_data_device(test_data, self.current_device)
             eval_results = self.model.batch_eval(test_data)
 

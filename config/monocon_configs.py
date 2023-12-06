@@ -8,15 +8,15 @@ _C.DESCRIPTION = "MonoCon Default Configuration"
 
 _C.OUTPUT_DIR = "exps"                           # Output Directory
 _C.SEED = -1                                     # -1: Random Seed Selection
-_C.GPU_ID = 0                                    # Index of GPU to use
+_C.GPU_ID = 6                                    # Index of GPU to use
 
 _C.USE_BENCHMARK = False                          # Value of 'torch.backends.cudnn.benchmark' and 'torch.backends.cudnn.enabled'
 
 
 # Data
 _C.DATA = CN()
-_C.DATA.ROOT = '/workspace/565/dataset'                  # Dataset directory
-_C.DATA.BATCH_SIZE = 5
+_C.DATA.ROOT = '/workspace/monocon/dataset'                  # Dataset directory
+_C.DATA.BATCH_SIZE = 12
 _C.DATA.NUM_WORKERS = 4
 _C.DATA.TRAIN_SPLIT = 'train'
 _C.DATA.TEST_SPLIT = 'val'
@@ -47,7 +47,7 @@ _C.SOLVER = CN()
 _C.SOLVER.OPTIM = CN()
 _C.SOLVER.OPTIM.LR = 2.25E-04
 _C.SOLVER.OPTIM.WEIGHT_DECAY = 1E-05
-_C.SOLVER.OPTIM.NUM_EPOCHS = 200        # Max Training Epochs
+_C.SOLVER.OPTIM.NUM_EPOCHS = 300        # Max Training Epochs
 
 _C.SOLVER.SCHEDULER = CN()
 _C.SOLVER.SCHEDULER.ENABLE = True

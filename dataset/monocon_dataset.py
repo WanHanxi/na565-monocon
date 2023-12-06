@@ -22,6 +22,7 @@ DEFAULT_FILTER_CONFIG = {
 
 
 default_train_transforms = [
+    AddFog(),
     PhotometricDistortion(
         brightness_delta=32,
         contrast_range=(0.5, 1.5),
