@@ -1,14 +1,9 @@
-# A template repository for NA565 final project
+
 This repo is accommodated from [MonoCon](https://github.com/2gunsu/monocon-pytorch) for the NA565 final project. 
 
-After setting up the envionment and converting the final project dataset into the KITTI format, the training code should work directly. 
+3D object detection has emerged as a pivotal challenge in the realm of computer vision, particularly in applications like autonomous driving and robotics. The project delves into MonoCon, a state-of-the-art neural network framework designed to tackle this challenge using a single camera input. This method proposes a simple but effective formulation for monocular 3D object detection without exploiting any extra information such as lidar and depth. It learns Monocular Contexts, as auxiliary tasks in training, to help monocular 3D object detection. We revised and tested MonoCon in the KITTI benchmark on the car category under different scenarios and output 3D bounding box prediction to evaluate the performance.
 
-### Submission Format Generation
-The repo does not have an inference script to generate detection files in the test set, where ground truth labels are not available. You need to implement this by yourself to generate the submission file. 
-
-We provide utility functions `kitti_3d_to_file()` and `kitti_file_to_3d()` in `utils/kitti_convert_utils.py`, to generate detection files in kitti format. We also provide `merger.py` to merge detections files for all frames into a single file. Use them to write your own inference script to generate the submission file on the test set. 
-
-Hint: you may look into `test.py` and `MonoconEngine.evaluate()` and modify from there to output detection files. 
+See [our report](NAVARCH565_Team14.pdf) for more details.
 
 Below are the original readme of [MonoCon](https://github.com/2gunsu/monocon-pytorch).
 
